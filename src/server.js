@@ -427,6 +427,7 @@ function getBaseStyles() {
     .badge-out { background: #ffebee; color: #c62828; }
     .badge-long { background: #fff3e0; color: #ef6c00; }
     .badge-restoration { background: #e3f2fd; color: #1565c0; }
+    .badge-cpo { background: #fce4ec; color: #c2185b; font-size: 0.7rem; padding: 0.2rem 0.5rem; }
     .badge-none { background: #f5f5f5; color: #757575; }
     .stat-pending { background: #e3f2fd; color: #1565c0; }
     .stat-working { background: #fff3e0; color: #ef6c00; }
@@ -935,9 +936,14 @@ function getStatusPage(category, categoryName, vehicles, restorationMap = new Ma
           <tr><td colspan="5" style="text-align:center; padding:2rem; color:#666;">${categoryName} 차량이 없습니다.</td></tr>
           ` : vehicles.map(v => {
             const isLong = v.parking_hours >= 72;
+            const restoration = restorationMap.get(v.plate_number);
+            const cpoType = restoration ? restoration.cpoType : null;
             return `
             <tr>
-              <td><strong>${v.plate_number}</strong></td>
+              <td>
+                <strong>${v.plate_number}</strong>
+                ${cpoType ? `<span class="badge badge-cpo" style="margin-left:0.5rem;">${cpoType}</span>` : ''}
+              </td>
               <td>${v.entry_time}</td>
               <td><span class="badge ${isLong ? 'badge-long' : 'badge-in'}">${formatParkingDuration(v.parking_hours)}</span></td>
               <td>${v.location || '-'}</td>
@@ -992,7 +998,7 @@ function getLocationDetailPage(locationName, vehicles, restorationMap = new Map(
             const categoryText = restoration ? restoration.categoryText : '전산 미등록';
             const category = restoration ? restoration.category : 'none';
             const statusClass = restoration ? (restoration.hasFail ? 'stat-fail' : `stat-${category === 'outbound_waiting' ? 'outbound' : category}`) : 'badge-none';
-            const currentTasks = currentTasksMap.get(v.plate_number) || [];
+            const cpoType = restoration ? restoration.cpoType : null;
             return `
             <tr>
               <td><strong>${v.plate_number}</strong></td>
@@ -1000,6 +1006,7 @@ function getLocationDetailPage(locationName, vehicles, restorationMap = new Map(
               <td><span class="badge ${isLong ? 'badge-long' : 'badge-in'}">${formatParkingDuration(v.parking_hours)}</span></td>
               <td>
                 <span class="badge ${statusClass}">${categoryText}</span>
+                ${cpoType ? `<span class="badge badge-cpo" style="margin-left:0.5rem;">${cpoType}</span>` : ''}
               </td>
               <td><a href="/vehicle/${encodeURIComponent(v.plate_number)}" class="btn btn-primary btn-sm">상세</a></td>
             </tr>
@@ -1052,7 +1059,7 @@ function getParkedPage(vehicles, restorationMap = new Map(), currentTasksMap = n
               const categoryText = restoration ? restoration.categoryText : '전산 미등록';
               const category = restoration ? restoration.category : 'none';
               const statusClass = restoration ? (restoration.hasFail ? 'stat-fail' : `stat-${category === 'outbound_waiting' ? 'outbound' : category}`) : 'badge-none';
-              const currentTasks = currentTasksMap.get(v.plate_number) || [];
+              const cpoType = restoration ? restoration.cpoType : null;
               return `
               <tr>
                 <td><strong>${v.plate_number}</strong></td>
@@ -1061,6 +1068,7 @@ function getParkedPage(vehicles, restorationMap = new Map(), currentTasksMap = n
                 <td>${v.location || '-'}</td>
                 <td>
                   <span class="badge ${statusClass}">${categoryText}</span>
+                  ${cpoType ? `<span class="badge badge-cpo" style="margin-left:0.5rem;">${cpoType}</span>` : ''}
                 </td>
                 <td><a href="/vehicle/${encodeURIComponent(v.plate_number)}" class="btn btn-primary btn-sm">상세</a></td>
               </tr>
@@ -1181,6 +1189,7 @@ function getVehicleDetailPage(plate, history, currentStatus, restorationInfo = n
             `<span class="badge badge-in" style="font-size:1rem; padding:0.5rem 1rem;">현재 입차 중</span>` :
             `<span class="badge badge-out" style="font-size:1rem; padding:0.5rem 1rem;">출차 완료</span>`
           }
+          ${restorationInfo && restorationInfo.restoration && restorationInfo.restoration.cpoType ? `<span class="badge badge-cpo" style="font-size:0.9rem; padding:0.4rem 0.8rem; margin-left:0.5rem;">${restorationInfo.restoration.cpoType}</span>` : ''}
         </div>
         ${imageUrl ? `
         <div class="image-container">
@@ -1194,7 +1203,9 @@ function getVehicleDetailPage(plate, history, currentStatus, restorationInfo = n
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
           <div>
             <div style="font-size:0.9rem; color:${restorationInfo.hasFail ? '#c62828' : '#1565c0'}; margin-bottom:0.25rem;">상품화 상태</div>
-            <div class="restoration-status" style="${restorationInfo.hasFail ? 'color:#c62828;' : ''}">${restorationInfo.statusText}${restorationInfo.hasFail ? ' (NG)' : ''}</div>
+            <div class="restoration-status" style="${restorationInfo.hasFail ? 'color:#c62828;' : ''}">
+              ${restorationInfo.statusText}${restorationInfo.hasFail ? ' (NG)' : ''}
+            </div>
           </div>
           <span class="badge ${restorationInfo.hasFail ? 'badge-out' : getRestorationBadgeClass(restorationInfo.statusCode)}" style="font-size:0.9rem; padding:0.5rem 1rem;">
             ${restorationInfo.found ? (restorationInfo.restoration ? (restorationInfo.hasFail ? '출고검수 NG' : restorationInfo.statusCode) : '상품화 정보 없음') : '전산 미등록'}
@@ -1405,7 +1416,7 @@ function getLongParkedPage(days, vehicles, restorationMap = new Map(), currentTa
               const categoryText = restoration ? restoration.categoryText : '전산 미등록';
               const category = restoration ? restoration.category : 'none';
               const statusClass = restoration ? (restoration.hasFail ? 'stat-fail' : `stat-${category === 'outbound_waiting' ? 'outbound' : category}`) : 'badge-none';
-              const currentTasks = currentTasksMap.get(v.plate_number) || [];
+              const cpoType = restoration ? restoration.cpoType : null;
               return `
               <tr>
                 <td><strong>${v.plate_number}</strong></td>
@@ -1414,6 +1425,7 @@ function getLongParkedPage(days, vehicles, restorationMap = new Map(), currentTa
                 <td>${v.location || '-'}</td>
                 <td>
                   <span class="badge ${statusClass}">${categoryText}</span>
+                  ${cpoType ? `<span class="badge badge-cpo" style="margin-left:0.5rem;">${cpoType}</span>` : ''}
                 </td>
                 <td><a href="/vehicle/${encodeURIComponent(v.plate_number)}" class="btn btn-primary btn-sm">상세</a></td>
               </tr>

@@ -193,7 +193,7 @@ export async function getRestorationStatusForVehicles(carNums) {
 
     // restoration 및 최신 r_no 조회
     const [restorations] = await pool.execute(
-      `SELECT r_no, r_c_no, r_status_cd FROM restoration
+      `SELECT r_no, r_c_no, r_status_cd, cpoType FROM restoration
        WHERE r_c_no IN (${restorationPlaceholders})
        AND r_no IN (
          SELECT MAX(r_no) FROM restoration
@@ -241,7 +241,8 @@ export async function getRestorationStatusForVehicles(carNums) {
           statusText: RESTORATION_STATUS[restoration.r_status_cd] || restoration.r_status_cd || '알 수 없음',
           category: category,
           categoryText: hasFail ? '검수 NG' : (CATEGORY_TEXT[category] || '기타'),
-          hasFail: hasFail
+          hasFail: hasFail,
+          cpoType: restoration.cpoType || null
         });
       }
     }
@@ -254,7 +255,8 @@ export async function getRestorationStatusForVehicles(carNums) {
           statusText: '상품화 정보 없음',
           category: 'none',
           categoryText: '상품화 정보 없음',
-          hasFail: false
+          hasFail: false,
+          cpoType: null
         });
       }
     }
