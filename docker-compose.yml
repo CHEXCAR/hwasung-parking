@@ -7,7 +7,7 @@ services:
     ports:
       - "${PORT:-5555}:5555"
     volumes:
-      - ./data:/app/data
+      - ./parking.db:/app/parking.db
     environment:
       - NODE_ENV=production
       - PORT=5555
@@ -32,7 +32,7 @@ services:
     container_name: hwasung-parking-scheduler
     command: ["node", "src/index.js", "scheduler"]
     volumes:
-      - ./data:/app/data
+      - ./parking.db:/app/parking.db
     environment:
       - NODE_ENV=production
       - CPM_DB_HOST=${CPM_DB_HOST}
