@@ -1,0 +1,6 @@
+INSTRUCTION.md
+docs/
+.env
+.idea
+cookies.txt
+node_modules/

@@ -1,0 +1,27 @@
+{
+  "name": "hwasung-parking",
+  "version": "1.0.0",
+  "description": "화성 주차 관제 시스템",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "init": "node src/index.js init",
+    "crawl": "node src/index.js crawl",
+    "crawl:range": "node src/index.js crawl-range",
+    "status": "node src/index.js status",
+    "scheduler": "node src/index.js scheduler",
+    "web": "node src/server.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.2",
+    "better-sqlite3": "^9.2.2",
+    "commander": "^11.1.0",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "mysql2": "^3.6.5",
+    "node-cron": "^3.0.3"
+  }
+}
