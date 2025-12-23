@@ -7,6 +7,8 @@ RUN apk add --no-cache python3 make g++ tzdata
 
 # 한국 시간대 설정
 ENV TZ=Asia/Seoul
+RUN cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
+    echo "Asia/Seoul" > /etc/timezone
 
 # 패키지 파일 복사 및 설치
 COPY package*.json ./
