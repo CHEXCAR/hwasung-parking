@@ -4,6 +4,7 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import Database from 'better-sqlite3';
 import {
   getStats,
   getParkedVehicles,
@@ -32,11 +33,69 @@ const PORT = process.env.PORT || 3000;
 const ADMIN_ID = process.env.ADMIN_ID || 'admin';
 const ADMIN_PW = process.env.ADMIN_PW || 'admin1234';
 
+// SQLite 세션 스토어
+class SQLiteStore extends session.Store {
+  constructor(dbPath) {
+    super();
+    this.db = new Database(dbPath);
+    this.db.exec(`
+      CREATE TABLE IF NOT EXISTS sessions (
+        sid TEXT PRIMARY KEY,
+        sess TEXT NOT NULL,
+        expired INTEGER NOT NULL
+      )
+    `);
+    this.db.exec(`CREATE INDEX IF NOT EXISTS idx_sessions_expired ON sessions(expired)`);
+
+    // 만료된 세션 정리 (1시간마다)
+    setInterval(() => this.clearExpired(), 60 * 60 * 1000);
+    this.clearExpired();
+  }
+
+  get(sid, callback) {
+    try {
+      const row = this.db.prepare('SELECT sess FROM sessions WHERE sid = ? AND expired > ?').get(sid, Date.now());
+      callback(null, row ? JSON.parse(row.sess) : null);
+    } catch (err) {
+      callback(err);
+    }
+  }
+
+  set(sid, sess, callback) {
+    try {
+      const maxAge = sess.cookie?.maxAge || 86400000;
+      const expired = Date.now() + maxAge;
+      this.db.prepare('INSERT OR REPLACE INTO sessions (sid, sess, expired) VALUES (?, ?, ?)').run(sid, JSON.stringify(sess), expired);
+      callback?.(null);
+    } catch (err) {
+      callback?.(err);
+    }
+  }
+
+  destroy(sid, callback) {
+    try {
+      this.db.prepare('DELETE FROM sessions WHERE sid = ?').run(sid);
+      callback?.(null);
+    } catch (err) {
+      callback?.(err);
+    }
+  }
+
+  clearExpired() {
+    try {
+      this.db.prepare('DELETE FROM sessions WHERE expired <= ?').run(Date.now());
+    } catch (err) {
+      console.error('세션 정리 오류:', err.message);
+    }
+  }
+}
+
 // 미들웨어 설정
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
+  store: new SQLiteStore('./parking.db'),
   secret: process.env.SESSION_SECRET || 'hwasung-parking-secret',
   resave: false,
   saveUninitialized: false,
