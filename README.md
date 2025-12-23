@@ -93,9 +93,48 @@ src/
 └── scheduler.js      # 정기 데이터 수집 스케줄러
 ```
 
+## Docker로 실행
+
+### 빠른 시작
+
+```bash
+# .env 파일 설정
+cp .env.example .env
+# .env 파일 수정 후
+
+# 컨테이너 빌드 및 실행
+docker-compose up -d
+```
+
+웹 대시보드: `http://localhost:5555`
+
+### 서비스 구성
+
+| 서비스 | 설명 |
+|--------|------|
+| web | 웹 대시보드 서버 (포트 5555) |
+| scheduler | 주차장 API 데이터 수집 스케줄러 |
+
+### 명령어
+
+```bash
+# 컨테이너 시작
+docker-compose up -d
+
+# 로그 확인
+docker-compose logs -f
+
+# 컨테이너 중지
+docker-compose down
+
+# 재빌드
+docker-compose up -d --build
+```
+
 ## 기술 스택
 
 - **Backend**: Node.js, Express
 - **Database**: SQLite (로컬), MySQL (CPM 연동)
 - **Frontend**: Server-side rendered HTML
 - **Scheduler**: node-cron
+- **Container**: Docker, Docker Compose
