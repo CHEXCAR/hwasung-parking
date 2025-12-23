@@ -9,6 +9,7 @@ services:
     volumes:
       - ./parking.db:/app/parking.db
     environment:
+      - TZ=Asia/Seoul
       - NODE_ENV=production
       - PORT=5555
       - CPM_DB_HOST=${CPM_DB_HOST}
@@ -34,6 +35,7 @@ services:
     volumes:
       - ./parking.db:/app/parking.db
     environment:
+      - TZ=Asia/Seoul
       - NODE_ENV=production
       - CPM_DB_HOST=${CPM_DB_HOST}
       - CPM_DB_PORT=${CPM_DB_PORT:-3306}
