@@ -5,22 +5,21 @@ services:
     build: .
     container_name: hwasung-parking-web
     ports:
-      - "${WEB_PORT:-5555}:5555"
+      - "${PORT:-5555}:5555"
     volumes:
       - ./data:/app/data
     environment:
       - NODE_ENV=production
-      - WEB_PORT=5555
-      - PARKING_API_URL=${PARKING_API_URL}
-      - PARKING_API_KEY=${PARKING_API_KEY}
+      - PORT=5555
       - CPM_DB_HOST=${CPM_DB_HOST}
       - CPM_DB_PORT=${CPM_DB_PORT:-3306}
       - CPM_DB_USER=${CPM_DB_USER}
       - CPM_DB_PASSWORD=${CPM_DB_PASSWORD}
       - CPM_DB_NAME=${CPM_DB_NAME}
-      - SESSION_SECRET=${SESSION_SECRET:-hwasung-parking-secret}
-      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - SESSION_SECRET=${SESSION_SECRET}
+      - ADMIN_ID=${ADMIN_ID:-admin}
+      - ADMIN_PW=${ADMIN_PW:-admin1234}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:5555/login"]
@@ -36,13 +35,12 @@ services:
       - ./data:/app/data
     environment:
       - NODE_ENV=production
-      - PARKING_API_URL=${PARKING_API_URL}
-      - PARKING_API_KEY=${PARKING_API_KEY}
       - CPM_DB_HOST=${CPM_DB_HOST}
       - CPM_DB_PORT=${CPM_DB_PORT:-3306}
       - CPM_DB_USER=${CPM_DB_USER}
       - CPM_DB_PASSWORD=${CPM_DB_PASSWORD}
       - CPM_DB_NAME=${CPM_DB_NAME}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
     restart: unless-stopped
     depends_on:
       - web

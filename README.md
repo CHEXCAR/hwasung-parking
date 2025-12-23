@@ -33,24 +33,23 @@ npm install
 `.env` 파일을 생성하고 다음 환경 변수를 설정합니다:
 
 ```env
-# 주차장 API
-PARKING_API_URL=https://your-parking-api.com
-PARKING_API_KEY=your-api-key
+# 웹 대시보드 인증 정보
+ADMIN_ID=admin
+ADMIN_PW=your_password_here
 
-# CPM 데이터베이스
+# 서버 설정
+PORT=5555
+SESSION_SECRET=change-this-to-random-string
+
+# CPM MySQL 데이터베이스 설정
 CPM_DB_HOST=localhost
 CPM_DB_PORT=3306
-CPM_DB_USER=root
-CPM_DB_PASSWORD=password
-CPM_DB_NAME=cpm_dev
+CPM_DB_USER=cpm_readonly
+CPM_DB_PASSWORD=your_password_here
+CPM_DB_NAME=cpm
 
-# 웹 서버
-WEB_PORT=5555
-SESSION_SECRET=your-session-secret
-
-# 관리자 계정
-ADMIN_USERNAME=admin
-ADMIN_PASSWORD=password
+# Slack 알림 설정
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/xxx/xxx/xxx
 ```
 
 ## 실행
